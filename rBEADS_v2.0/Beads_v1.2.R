@@ -190,6 +190,6 @@ if (0) {
 }
 #
 #
-#
+#terz dodam jakies bzdury na koncu pliku
 
 	
