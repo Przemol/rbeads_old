@@ -40,7 +40,7 @@ sourceDir <- function(path, trace = TRUE, ...) {
 		if(trace) cat("\n")
 	}
 }
-source.dir <- '/Users/przemol/Documents/workspace/rBeads_v1.1/source'
+source.dir <- '/Users/przemol/git/rBEADS_v2.0/rBEADS_v2.0/source'
 sourceDir(source.dir)
 load(file.path(source.dir, 'precalculated/MappabilityCe6_v2.Rdata'))
 load(file.path(source.dir, 'precalculated/nonMappableFilterCe6_v1.Rdata'))
