@@ -3,13 +3,6 @@
 # Author: przemol
 ###############################################################################
 
-
-# TODO: Add comment
-# 
-# Author: przemol
-###############################################################################
-
-
 require(GenomicRanges)
 require(rtracklayer)
 library(multicore)
