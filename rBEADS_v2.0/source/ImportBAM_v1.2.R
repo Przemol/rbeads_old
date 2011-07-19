@@ -49,7 +49,7 @@ ImportBAM <- function(bam.file=dir(pattern="\\.bam$")[1], genome=Celegans, desc=
 		}
 			
 			#Resize sequences to 200bp //This resize method can be better with smooth end resizeing (as in peak calling)
-		if( !is.null(resize_length) ) { ranges.raw <- resize(ranges.raw, resize_length) }
+		if( !is.null(resize_length) ) { suppressWarnings( ranges.raw <- resize(ranges.raw, resize_length) ) }
 		
 			#Calculate oryginal BAM file statistics
 		num <- countBam(bam.file)

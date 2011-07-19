@@ -99,7 +99,7 @@ beads <- function(config='BeadsConfig.csv') {
 		
 		##Sample [ChIP]
 		if (grepl('bam$', as.character(files$Sample[1]))) {
-			sample.re <- ImportBAM(bam.file=file.path(data.dir, as.character(files$Sample[i])), desc=sample.d, resize_length=200, quality_cutoff=10, export_bin=F, export_track=F)
+			sample.re <- ImportBAM(bam.file=file.path(data.dir, as.character(files$Sample[i])), desc=sample.d, resize_length=200, quality_cutoff=10)
 		} else if (grepl('export.fq', as.character(files$Sample[1]))) {
 			sample.re <- ImportSolexa(file=as.character(files$Sample[i]), data.dir=data.dir, desc=sample.d, resize_length=200, quality_cutoff=10, export_bin=FALSE, export_track=FALSE)
 		} else if (grepl('Rdata$', as.character(files$Sample[1]))) {
