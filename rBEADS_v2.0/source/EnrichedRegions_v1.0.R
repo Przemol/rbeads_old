@@ -10,36 +10,11 @@
 ###############################################################################
 
 
-# TODO: Add comment
-# 
-# Author: przemol
-if(0){
-	files <- sapply( dir(pattern="Ranges.+Rdata"), function(x) {cat("Loading:", x, "\n"); return(load(x, envir=.GlobalEnv))} )
-	gsub("(\\W|get)", "_", deparse(substitute(get("a"))), perl=T)
-	
-	ERandBin <- function(files) {
-		for(file in files) {
-			desc <- sprintf("%s_OS", unlist(strsplit(file, "\\."))[1])
-			varname <- desc
-			assign(varname, importBAM(file, desc=desc, resize_length=200, quality_cutoff=10, export_bin=TRUE, export_track=TRUE)) 
-				
-			#varname <- load(file)
-			rB.EnrichedRegions.OS(get(varname), desc=desc )
-			#binTrack(coverage(get(varname)), n=25, smooth=FALSE, out=sprintf("%s.wig", desc), type="WIG")
-		}
-	} 
-	ERandBin( dir(pattern="RawRanges.+Rdata") )
-	ERandBin( dir(pattern="bam") )
-	
-}
-#	
-#
-###############################################################################
 require(GenomicRanges)
 require(rtracklayer)
 library(multicore)
 
-EnrichedRegions <- function(ranges.raw, desc="EnrichedRegions1" ) {
+EnrichedRegions <- function(ranges.raw, desc="EnrichedRegions1", genome=Celegans ) {
 	
 	
 	cat("GC correction - peak calling", "\n")
@@ -53,12 +28,12 @@ EnrichedRegions <- function(ranges.raw, desc="EnrichedRegions1" ) {
 	
 	#Do peak calling
 	catTime("Do peak calling", e={
-				a = quantile(as.vector(combExtCoverRep1), 0.75)
+				a = quantile(quantile(combExtCoverRep1, 0.75), 0.75)
 				enriched_regions <- slice(combExtCoverRep1, lower = a)
 				peakSumsRep1 <-viewSums(enriched_regions)
 				enriched_regions <- enriched_regions[peakSumsRep1 >= quantile(peakSumsRep1[[3]], .90)]
 			})
-	
+	cat('INFO: ', 100 *sum(sum(width(enriched_regions))) / sum(as.numeric(seqlengths(genome)[seqlevels(ranges.raw)])), '% of genome in ER\n', sep='')
 	#INFO: prepare the peak calling bed file to view in IGB/IGV
 	catTime("INFO: prepare the peak calling bed file to view in IGB/IGV", e={															
 				export.bed(enriched_regions, sprintf("%s.ERpeakCall.bed", desc))	
