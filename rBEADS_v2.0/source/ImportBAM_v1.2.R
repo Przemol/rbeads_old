@@ -10,10 +10,8 @@
 
 require(Rsamtools)
 require(BSgenome.Celegans.UCSC.ce6)
-require(BSgenome.Hsapiens.UCSC.hg19)
-require(BSgenome.Mmusculus.UCSC.mm9)
 
-ImportBAM <- function(bam.file=dir(pattern="\\.bam$")[1], genome=Celegans, desc=unlist(strsplit(bam.file, "\\."))[1], resize_length=200, quality_cutoff=10, export_bin=FALSE, export_track=FALSE) {
+ImportBAM <- function(bam.file=dir(pattern="\\.bam$")[1], desc=unlist(strsplit(bam.file, "\\."))[1], resize_length=200, quality_cutoff=10, export_bin=TRUE, export_track=TRUE) {
 	
 	
 	#Read sam allignment file
@@ -37,19 +35,11 @@ ImportBAM <- function(bam.file=dir(pattern="\\.bam$")[1], genome=Celegans, desc=
 		ranges.raw <- GRanges(seqnames = aln2[[1]]$rname[lg], ranges = IRanges(aln2[[1]]$pos[lg], width=aln2[[1]]$qwidth[lg]), strand = aln2[[1]]$strand[lg]);
 			
 			#Sort out chromosome naming and sequence lengths (ce6)
-		if (genome@provider_version == 'ce6') {	
-			seqlevels (ranges.raw) <- seqlevels (genome)[c(1,2,3,4,7,5,6)]
-			seqlengths(ranges.raw) <- seqlengths(genome)[c(1,2,3,4,7,5,6)]
-		} else if (genome@provider_version == 'hg19') {	
-			seqlengths(ranges.raw) <- seqlengths(genome)[seqlevels(ranges.raw)]
-		} else if (genome@provider_version == 'mm9') {
-			seqlengths(ranges.raw) <- seqlengths(genome)[seqlevels(ranges.raw)]
-		} else {
-			warning('Unnkonown genome!')
-		}
+		seqlevels (ranges.raw) <- seqlevels (Celegans)[c(1,2,3,4,7,5,6)]
+		seqlengths(ranges.raw) <- seqlengths(Celegans)[c(1,2,3,4,7,5,6)]
 			
 			#Resize sequences to 200bp //This resize method can be better with smooth end resizeing (as in peak calling)
-		if( !is.null(resize_length) ) { suppressWarnings( ranges.raw <- resize(ranges.raw, resize_length) ) }
+		if( !is.null(resize_length) ) { ranges.raw <- resize(ranges.raw, resize_length) }
 		
 			#Calculate oryginal BAM file statistics
 		num <- countBam(bam.file)
@@ -59,6 +49,18 @@ ImportBAM <- function(bam.file=dir(pattern="\\.bam$")[1], genome=Celegans, desc=
 	
 	rm(aln2)
 	
+	if (export_bin | export_track) { 
+			catTime("Exporting Rdata and/or Wiggle file:\n", e={ 
+			if (export_bin) {
+				assign(sprintf("RawRanges.%s", desc), ranges.raw)
+				save(list=sprintf("RawRanges.%s", desc), file=sprintf("RawRanges_%s.Rdata",  desc))
+				rm(list=sprintf("RawRanges.%s", desc))
+			}
+			if (export_track) { 
+				binTrack(coverage(ranges.raw), n=25, smooth=FALSE, out=sprintf("RAW_%s.wig", desc), type="WIG")
+			}					
+		})
+	}
 	return(ranges.raw)
 }
 
