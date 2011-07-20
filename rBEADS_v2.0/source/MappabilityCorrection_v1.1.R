@@ -13,12 +13,22 @@ MappabilityCorrection <- function(GCnormTrack, mappabilityTrack=NULL, genome=Cel
 		# 1) masking regions of mappability lower than 100 (mappability score=0.25) from precalculated mappability track
 		#GCnormTrack[cmap.fd < 0.25] <- NA
 		if (genome@provider_version == 'ce6') {	
-			names(GCnormTrack) <- seqnames(Celegans)[c(1:4,7,5,6)]
-			GCnormTrack[mappabilityTrack[c(1:4,7,5,6)] < 100] <- NA
+			#names(GCnormTrack) <- seqnames(Celegans)[c(1:4,7,5,6)]
+			#GCnormTrack[mappabilityTrack[c(1:4,7,5,6)] < 100] <- NA
+					for(i in names(GCnormTrack)) {
+						cat(.)
+						GCnormTrack[[i]][mappabilityTrack[[i]] < 100] <- NA
+					}
 		} else if (genome@provider_version == 'hg19') {	
-			GCnormTrack[mappabilityTrack < 100] <- NA
+			for(i in names(GCnormTrack)) {
+				cat(.)
+				GCnormTrack[[i]][mappabilityTrack[[i]] < 100] <- NA
+			}
 		} else if (genome@provider_version == 'mm9') {
-			GCnormTrack[mappabilityTrack < 100] <- NA
+			for(i in names(GCnormTrack)) {
+				cat(.)
+				GCnormTrack[[i]][mappabilityTrack[[i]] < 100] <- NA
+			}
 		} else {
 			warning('Unnkonown genome!')
 		}
@@ -27,6 +37,7 @@ MappabilityCorrection <- function(GCnormTrack, mappabilityTrack=NULL, genome=Cel
 	})
 
 	return(GCnormTrack)
+	
 }
 
 catTime <- function(..., e=NULL, file="", gc=FALSE) {
