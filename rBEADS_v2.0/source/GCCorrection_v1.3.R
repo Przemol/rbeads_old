@@ -116,12 +116,15 @@ GCCorrection <- function(ranges.raw, enriched_regions, nonMappableFilter, genome
 	#Mask nonGC correctable regions TOO DO: too log, too much memory
 	catTime("Masking non-GCcorrectable regions", e={
 		for(i in names(cov.r)) {
-			cat('.')
+			cat(i, '\n')
 			GCchr <- letterFrequencyInSlidingView(getSeq(genome, names=i, as.character=F, strand="*"), 200, "GC")
-			notGCcorrectableRegions <- GRanges(seqnames=i, ranges=IRanges(which( ! (GCchr >= cutoff[1] & GCchr <= cutoff[2]) ), width=200))
-			seqlengths(notGCcorrectableRegions) <- seqlengths(genome)[ i ]
-			notGCcorrectableRegions <- c(notGCcorrectableRegions, GRanges(seqnames=i, ranges=IRanges( seqlengths(genome)[i]-199, width=200)) )
-			cov.r[[i]][ (coverage(notGCcorrectableRegions) > 0)[[i]] ] <- NA
+			ll <- which( ! (GCchr >= cutoff[1] & GCchr <= cutoff[2]) )
+			if( length(ll) > 0 ) {
+				notGCcorrectableRegions <- GRanges(seqnames=i, ranges=IRanges(ll, width=200))
+				seqlengths(notGCcorrectableRegions) <- seqlengths(genome)[ i ]
+				notGCcorrectableRegions <- c(notGCcorrectableRegions, GRanges(seqnames=i, ranges=IRanges( seqlengths(genome)[i]-199, width=200)) )
+				cov.r[[i]][ (coverage(notGCcorrectableRegions) > 0)[[i]] ] <- NA
+			}
 		}
 	})
 
