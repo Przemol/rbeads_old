@@ -61,9 +61,13 @@ beads <- function(config='BeadsConfig.csv') {
 	files <- suppressWarnings(read.csv(config))
 	
 	genome <- get(as.character(files$genome))
-
-	MAP <- data('MappabilityCe6', package='rBEADS')
-	MAPF <- data('nonMappableFilterCe6', package='rBEADS')
+	MAP <- load(as.character(files$maptrack))
+	MAPF <- load(as.character(files$mapfilter))
+	ext <- as.integer(as.character(files$extlength))
+	GCcutoff <- c(as.integer(files$gclow), as.integer(files$gchigh))
+	
+	#MAP <- data('MappabilityCe6', package='rBEADS')
+	#MAPF <- data('nonMappableFilterCe6', package='rBEADS')
 	#FRMI <- load(file.path(source.dir, 'precalculated/SummedFormaldehydeInput_v2.Rdata'))
 
 	for(i in 1:nrow(files))  {
@@ -95,19 +99,23 @@ beads <- function(config='BeadsConfig.csv') {
 			##Control [INPUT]
 			control.d <- reName(as.character(files$Control[i]), 'na', 'na', 'na', '', 'D', 0)
 			if (grepl('bam$', as.character(files$Control[1]))) {
-				control.re <- ImportBAM(bam.file=file.path(data.dir, as.character(files$Control[i])), desc=sample.d, resize_length=200, quality_cutoff=10, export_bin=F, export_track=F)
+				#Valid BAM control for all genomes!
+				control.re <- ImportBAM(bam.file=file.path(data.dir, as.character(files$Control[i])), genome=genome, desc=control.d, resize_length=ext, quality_cutoff=10)
 			} else if (grepl('export.fq', as.character(files$Control[1]))) {
-				control.re <- ImportSolexa(file=as.character(files$Control[i]), data.dir=data.dir, desc=sample.d, resize_length=200, quality_cutoff=10, export_bin=FALSE, export_track=FALSE)
+				control.re <- ImportSolexa(file=as.character(files$Control[i]), data.dir=data.dir, desc=control.d, resize_length=200, quality_cutoff=10, export_bin=FALSE, export_track=FALSE)
+			} else if (grepl('Rdata$', as.character(files$Control[1]))) {
+				sample.re <- get(load( file.path(data.dir, as.character(files$Control[i])) ))
 			} else {
 				stop('Unknown input file type for sample!')
 			}
-			control.gc <- GCCorrection(control.re, enriched_regions=NULL, nonMappableFilter=get(MAPF), desc=control.d, smoothing_spline=FALSE)	
-			control.map <- MappabilityCorrection(GCnormTrack=control.gc, mappabilityTrack=get(MAP))
+			control.gc <- GCCorrection(control.re, enriched_regions=NULL, nonMappableFilter=get(MAPF), genome=genome, desc=control.d, smoothing_spline=FALSE, cutoff=GCcutoff)
+			control.map <- MappabilityCorrection(GCnormTrack=control.gc, mappabilityTrack=get(MAP), genome=genome)
 		## } 
 		
 		##Sample [ChIP]
 		if (grepl('bam$', as.character(files$Sample[1]))) {
-			sample.re <- ImportBAM(bam.file=file.path(data.dir, as.character(files$Sample[i])), desc=sample.d, resize_length=200, quality_cutoff=10)
+			#Valid BAM sample for all genomes!
+			sample.re <- ImportBAM(bam.file=file.path(data.dir, as.character(files$Sample[i])), genome=genome, desc=sample.d, resize_length=ext, quality_cutoff=10)
 		} else if (grepl('export.fq', as.character(files$Sample[1]))) {
 			sample.re <- ImportSolexa(file=as.character(files$Sample[i]), data.dir=data.dir, desc=sample.d, resize_length=200, quality_cutoff=10, export_bin=FALSE, export_track=FALSE)
 		} else if (grepl('Rdata$', as.character(files$Sample[1]))) {
@@ -116,18 +124,19 @@ beads <- function(config='BeadsConfig.csv') {
 			stop('Unknown input file type for sample!')
 		}
 		if(is.null(files$ER[i]) |  files$ER[i]=='auto' ){ 
-			sample.er <- EnrichedRegions(sample.re, desc=sample.d)
+			sample.er <- EnrichedRegions(sample.re, desc=sample.d, genome=genome) 
 		} else if (files$ER[i]=='no') { 
 			cat('INFO: Skipping ER auto finder!\n')
 			sample.er <- NULL
 		} else {
 			sample.er <- import.bed(files$ER[i], genome = "hg18")
 		}
-		sample.gc <- GCCorrection(sample.re, enriched_regions=sample.er, nonMappableFilter=get(MAPF), desc=sample.d, smoothing_spline=FALSE)
-		sample.map <- MappabilityCorrection(GCnormTrack=sample.gc, mappabilityTrack=get(MAP))
+		sample.gc <- GCCorrection(sample.re, enriched_regions=sample.er, nonMappableFilter=get(MAPF), genome=genome, desc=sample.d, smoothing_spline=FALSE, cutoff=GCcutoff)
+		sample.map <- MappabilityCorrection(GCnormTrack=sample.gc, mappabilityTrack=get(MAP), genome=genome)
 		
 		##Normalization
-		sample.norm <- DivStep(sample.map, control.map, sample.er)
+		sample.norm <- DivStep(sample.map, sample.map, sample.er, genome=genmome)
+		
 		
 		
 		#EXPORT	
