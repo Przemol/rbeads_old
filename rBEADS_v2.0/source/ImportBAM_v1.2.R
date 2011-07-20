@@ -9,9 +9,7 @@
 ###############################################################################
 
 require(Rsamtools)
-require(BSgenome.Celegans.UCSC.ce6)
-require(BSgenome.Hsapiens.UCSC.hg19)
-require(BSgenome.Mmusculus.UCSC.mm9)
+
 
 ImportBAM <- function(bam.file=dir(pattern="\\.bam$")[1], genome=Celegans, desc=unlist(strsplit(bam.file, "\\."))[1], resize_length=200, quality_cutoff=10, export_bin=FALSE, export_track=FALSE) {
 	

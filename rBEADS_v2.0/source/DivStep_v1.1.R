@@ -14,7 +14,7 @@ DivStep <- function(sample, control, enriched_regions=NULL, genome=Celegans) {
 			aa <- median(median(tmp, na.rm=T))
 			divstep <- divstep / aa
 		})
-	
+	cat('INFO: Scaling coefficient = ', aa, '\n', sep='')
 	
 	return(round(divstep, 3))
 }
