@@ -3,46 +3,18 @@
 # Author: przemol
 ###############################################################################
 
-DivStep <- function(sample, control, enriched_regions=NULL) {
+DivStep <- function(sample, control, enriched_regions=NULL, genome=Celegans) {
 	
-	if(class(control) == 'chracter') {
-		if (control == "formaldehyde") {
-			catTime("Loading default formaldehyde track", e={			
-				varname <- load("/Users/przemol/Documents/workspace/RBeads/rBeads/precalculated/summed_formaldehyde_input.Rdata")
-			})
-	
-			catTime("Performing DIV step", e={
-				formaldehyde_median <- 189 		
-				aa <- formaldehyde_median / median(as.numeric(sample), na.rm=T)
-				divstep <- sample / (summed_formaldehyde_input / aa)
-			})		
-		} else if (control == "EGS") {
-			catTime("Loading default EGS track", e={			
-				varname <- load("/Users/przemol/Documents/workspace/RBeads/rBeads/precalculated/summed_EGS_input.Rdata")
-			})
-			
-			catTime("Performing DIV step", e={
-				EGS_median <- 76 		
-				aa <- EGS_median / median(as.numeric(sample), na.rm=T)
-				divstep <- sample / (summed_EGS_input / aa)
-			})
-		}
-	} else {		
-		if (!is.null(enriched_regions)) {
-			catTime("Using custom input track and performing DIV step with enreached region", e={
-				#Calculate ogical vectors of non-enriched regions
-				nonEnrichedRegionsLogi <- !coverage(GRanges(space(enriched_regions), unlist(ranges(enriched_regions)), "*", seqlengths=seqlengths(Celegans)))
-				aa <- median(as.numeric(control), na.rm=T) / median(as.numeric(sample[nonEnrichedRegionsLogi[c(1,2,3,4,7,5,6)]]), na.rm=T)
-			})
-		} else {
-			catTime("Using custom input track amd performing DIV step - NO enreached region found!", e={
-				aa <- median(as.numeric(control), na.rm=T) / median(as.numeric(sample), na.rm=T)
-			})
-		}
-		catTime("Divideing and scaling", e={	
-			divstep <- sample / (control / aa)		
+		catTime("Divideing", e={	
+			divstep <- sapply(names(sample), function(x) sample[[x]] / control[[x]])
+			divstep <- RleList(divstep)
 		})
-	}
+
+		catTime("Scaling", e={
+			aa <- median(median(tmp, na.rm=T))
+			divstep <- divstep / aa
+		})
+	
 	
 	return(round(divstep, 3))
 }
