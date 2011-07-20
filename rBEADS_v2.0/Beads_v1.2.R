@@ -42,17 +42,25 @@ sourceDir <- function(path, trace = TRUE, ...) {
 }
 source.dir <- '/Users/przemol/git/rBEADS_v2.0/rBEADS_v2.0/source'
 sourceDir(source.dir)
-load(file.path(source.dir, 'precalculated/MappabilityCe6_v2.Rdata'))
-load(file.path(source.dir, 'precalculated/nonMappableFilterCe6_v1.Rdata'))
-load(file.path(source.dir, 'precalculated/SummedFormaldehydeInput_v2.Rdata'))
-load(file.path(source.dir, 'precalculated/SummedEGSInput_v2.Rdata'))
+#load(file.path(source.dir, 'precalculated/MappabilityCe6_v2.Rdata'))
+#load(file.path(source.dir, 'precalculated/nonMappableFilterCe6_v1.Rdata'))
+#load(file.path(source.dir, 'precalculated/SummedFormaldehydeInput_v2.Rdata'))
+#load(file.path(source.dir, 'precalculated/SummedEGSInput_v2.Rdata'))
 rm(source.dir)
+
+require(BSgenome.Celegans.UCSC.ce6)
+require(BSgenome.Hsapiens.UCSC.hg19)
+require(BSgenome.Mmusculus.UCSC.mm9)
+require(BSgenome.Dmelanogaster.UCSC.dm3)
+
 
 beads <- function(config='BeadsConfig.csv') {
 	
 	data.dir <- getwd()
 	setwd(data.dir)
-	files <- read.csv(config)
+	files <- suppressWarnings(read.csv(config))
+	
+	genome <- get(as.character(files$genome))
 
 	MAP <- data('MappabilityCe6', package='rBEADS')
 	MAPF <- data('nonMappableFilterCe6', package='rBEADS')
@@ -74,16 +82,16 @@ beads <- function(config='BeadsConfig.csv') {
 		cat("/* File created on", date(), "*/\n")
 		cat(i, ") Processing: ", as.character(files$Sample[i]), ' & ', as.character(files$Control[i]), "\n", sep='')
 		
-		if(files$Control[i] == 'FRM') {
-			cat('INFO: Using summed formaldehyde input!\n')
-			if(exists('summed.frm')) { control.map <- summed.frm } else { control.map <- get(data('summed.frm', package='rBEADS')) }
-		} else if(files$Control[i] == 'EGS') {
-			cat('INFO: Using summed EGS input!\n')
-			if(exists('summed.egs')) { control.map <- summed.egs } else { control.map <- get(data('summed.egs', package='rBEADS')) }
-		}  else if(grepl('Rdata$', as.character(files$Control[1]))) {
-			cat('INFO: Using summed', as.character(files$Control[1]), 'input!\n')
-			control.map <- get(load( file.path(data.dir, as.character(files$Control[1])) ))
-		} else {
+		## if(files$Control[i] == 'FRM') {
+		##     cat('INFO: Using summed formaldehyde input!\n')
+		##     if(exists('summed.frm')) { control.map <- summed.frm } else { control.map <- get(data('summed.frm', package='rBEADS')) }
+		## } else if(files$Control[i] == 'EGS') {
+		##     cat('INFO: Using summed EGS input!\n')
+		##     if(exists('summed.egs')) { control.map <- summed.egs } else { control.map <- get(data('summed.egs', package='rBEADS')) }
+		## }  else if(grepl('Rdata$', as.character(files$Control[1]))) {
+		##     cat('INFO: Using summed', as.character(files$Control[1]), 'input!\n')
+		##     control.map <- get(load( file.path(data.dir, as.character(files$Control[1])) ))
+		## } else {
 			##Control [INPUT]
 			control.d <- reName(as.character(files$Control[i]), 'na', 'na', 'na', '', 'D', 0)
 			if (grepl('bam$', as.character(files$Control[1]))) {
@@ -95,7 +103,7 @@ beads <- function(config='BeadsConfig.csv') {
 			}
 			control.gc <- GCCorrection(control.re, enriched_regions=NULL, nonMappableFilter=get(MAPF), desc=control.d, smoothing_spline=FALSE)	
 			control.map <- MappabilityCorrection(GCnormTrack=control.gc, mappabilityTrack=get(MAP))
-		} 
+		## } 
 		
 		##Sample [ChIP]
 		if (grepl('bam$', as.character(files$Sample[1]))) {
