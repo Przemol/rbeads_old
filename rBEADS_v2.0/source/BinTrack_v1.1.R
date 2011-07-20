@@ -27,12 +27,11 @@ BinTrack <- function(divstep, n=25, smooth=FALSE, out="TEST.gff", type="WIG", zs
 				rm(div.m)			
 			}
 		})
+
+Celegans
 		
 		catTime("BIN: Binning @ ", n, "bp", e={				
-			suppressWarnings( tiled <- genomeBlocks(Celegans, sort(seqnames(Celegans)), n) )
-			if(names(divstep)[1] == "I") {
-				seqlevels(tiled) <- c("I", "II", "III", "IV", "MtDNA", "V", "X")
-			}
+			suppressWarnings( tiled <- genomeBlocks(genome, names(divstep), n) )
 			tiled.split <- split(start(tiled), as.character(seqnames(tiled)))
 			values(tiled)$score <- unlist(lapply(names(divstep), function(x) as.numeric(divstep[[x]][tiled.split[[x]]])))		
 		})
