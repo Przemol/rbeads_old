@@ -33,7 +33,7 @@ GCCorrection <- function(ranges.raw, enriched_regions, nonMappableFilter, genome
 		}
 		#Calculate GC pecrentage among the chromosomes
 		GC <- lapply(seqlevels(ranges.raw), function(x) hist( c(letterFrequencyInSlidingView(getSeq(genome, x, as.character=F), 200, "GC"), rep(NA, 199))[as.logical(nonEnrichedMappableRegionsLogi[[x]])], 0:200, plot=F ) ) #Bottle neck, long, memory consuming
-		a.dens <- apply( sapply(GC, function(x) x$density), 1, function(x) weighted.mean(x, sum(nonEnrichedMappableRegionsLogi)))
+		a.dens <- apply( sapply(GC, function(x) x$density), 1, function(x) weighted.mean(x, sum(nonEnrichedMappableRegionsLogi)[seqlevels(ranges.raw)]))
 	})
 	
 	#INFO: percentage of genome to be sampled

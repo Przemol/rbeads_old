@@ -108,7 +108,7 @@ beads <- function(config='BeadsConfig.csv') {
 			} else {
 				stop('Unknown input file type for sample!')
 			}
-			control.gc <- GCCorrection(control.re, enriched_regions=NULL, nonMappableFilter=get(MAPF), genome=genome, desc=control.d, smoothing_spline=FALSE, cutoff=GCcutoff)
+			control.gc <- GCCorrection(ranges.raw=control.re, enriched_regions=NULL, nonMappableFilter=get(MAPF), genome=genome, desc=control.d, smoothing_spline=FALSE, cutoff=GCcutoff)
 			control.map <- MappabilityCorrection(GCnormTrack=control.gc, mappabilityTrack=get(MAP), genome=genome)
 		## } 
 		
@@ -131,7 +131,7 @@ beads <- function(config='BeadsConfig.csv') {
 		} else {
 			sample.er <- import.bed(files$ER[i], genome = "hg18")
 		}
-		sample.gc <- GCCorrection(sample.re, enriched_regions=sample.er, nonMappableFilter=get(MAPF), genome=genome, desc=sample.d, smoothing_spline=FALSE, cutoff=GCcutoff)
+		sample.gc <- GCCorrection(ranges.raw=sample.re, enriched_regions=sample.er, nonMappableFilter=get(MAPF), genome=genome, desc=sample.d, smoothing_spline=FALSE, cutoff=GCcutoff)
 		sample.map <- MappabilityCorrection(GCnormTrack=sample.gc, mappabilityTrack=get(MAP), genome=genome)
 		
 		##Normalization
