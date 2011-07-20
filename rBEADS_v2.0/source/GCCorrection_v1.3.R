@@ -116,7 +116,7 @@ GCCorrection <- function(ranges.raw, enriched_regions, nonMappableFilter, genome
 	#Mask nonGC correctable regions TOO DO: too log, too much memory
 	catTime("Masking non-GCcorrectable regions", e={
 		for(i in names(cov.r)) {
-			cat(i, '\n')
+			cat('.')
 			GCchr <- letterFrequencyInSlidingView(getSeq(genome, names=i, as.character=F, strand="*"), 200, "GC")
 			ll <- which( ! (GCchr >= cutoff[1] & GCchr <= cutoff[2]) )
 			if( length(ll) > 0 ) {
