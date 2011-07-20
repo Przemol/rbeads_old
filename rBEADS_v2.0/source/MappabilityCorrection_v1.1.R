@@ -16,17 +16,17 @@ MappabilityCorrection <- function(GCnormTrack, mappabilityTrack=NULL, genome=Cel
 			#names(GCnormTrack) <- seqnames(Celegans)[c(1:4,7,5,6)]
 			#GCnormTrack[mappabilityTrack[c(1:4,7,5,6)] < 100] <- NA
 					for(i in names(GCnormTrack)) {
-						cat(.)
+						cat('.')
 						GCnormTrack[[i]][mappabilityTrack[[i]] < 100] <- NA
 					}
 		} else if (genome@provider_version == 'hg19') {	
 			for(i in names(GCnormTrack)) {
-				cat(.)
+				cat('.')
 				GCnormTrack[[i]][mappabilityTrack[[i]] < 100] <- NA
 			}
 		} else if (genome@provider_version == 'mm9') {
 			for(i in names(GCnormTrack)) {
-				cat(.)
+				cat('.')
 				GCnormTrack[[i]][mappabilityTrack[[i]] < 100] <- NA
 			}
 		} else {
