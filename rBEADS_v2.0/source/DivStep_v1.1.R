@@ -11,7 +11,7 @@ DivStep <- function(sample, control, enriched_regions=NULL, genome=Celegans) {
 		})
 
 		catTime("Scaling", e={
-			aa <- median(median(tmp, na.rm=T))
+			aa <- median(median(divstep, na.rm=T))
 			divstep <- divstep / aa
 		})
 	cat('INFO: Scaling coefficient = ', aa, '\n', sep='')
