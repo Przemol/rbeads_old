@@ -150,7 +150,7 @@ beads <- function(config='BeadsConfig.csv') {
 		
 		if (exists('sample.re')) {
 			dir.create('ChIP_QC'); setwd('ChIP_QC')
-				BinTrack(coverage(sample.re), n=25, smooth=FALSE, out=reName(sample.d, 'Raw', 'linear', '25bp', ext='.wig'), type="WIG", name='RAW alignment', col='darkred')
+				BinTrack(sample.re.cov, n=25, smooth=FALSE, out=reName(sample.d, 'Raw', 'linear', '25bp', ext='.wig'), type="WIG", name='RAW alignment', col='darkred')
 				BinTrack(sample.gc, n=25, smooth=FALSE, out=reName(sample.d, 'GCCorrected', 'linear', '25bp', ext='.wig'), type="WIG", name='GC corrected', col='darkblue')
 				BinTrack(sample.map, n=25, smooth=FALSE, out=reName(sample.d, 'MapCorrected', 'linear', '25bp', ext= '.wig'), type="WIG", name='Mappability corrected', col='blue')
 			setwd('..')
